@@ -1,0 +1,1 @@
+{import file="{'./editors/' . $template . '.tpl'}"}

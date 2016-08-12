@@ -1,0 +1,57 @@
+#hbox-tree-widget {
+    ul {
+        list-style-type: none;
+        padding-left: 1rem;
+
+        &.root-folder {
+            padding-left: 0;
+        }
+
+        li {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: block;
+
+            &.file {
+                padding-left: 2.3rem;
+            }
+
+            input[name="develop"] {
+                & + label {
+                    width: auto;
+
+                    & ~ ul {
+                        max-height: 0;
+                        transform: scaleY(0);
+                        transform-origin: 50% 0;
+                        transition: transform .2s, max-height .2s ease-out;
+                    }
+                }
+
+                &:checked + label {
+                    margin-bottom: 0;
+                    // margin-right: .4rem;
+
+                    &:before {
+                        content : "";
+                    }
+
+                    & ~ ul {
+                        max-height: 5000rem;
+                        transform: scaleY(1);
+                    }
+                }
+            }
+
+            // label.element-name {
+            //     width: calc(~"100% - 1.5rem");
+
+            //     // & > span {
+
+            //         // max-width: calc(~"100% - 2rem");
+            //     // }
+            // }
+        }
+    }
+}

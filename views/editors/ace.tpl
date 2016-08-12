@@ -1,0 +1,1 @@
+<div contenteditable ko-attr="{id : 'hbox-ace-editor-' + id}" class="hbox-ace-editor" ko-ace="{language : extension, value : data, save : $root.save.bind($root)}"></div>

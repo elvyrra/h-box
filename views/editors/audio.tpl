@@ -1,0 +1,1 @@
+<audio autoplay ko-attr="{src : data}" controls="controls" autobuffer="true"></audio>

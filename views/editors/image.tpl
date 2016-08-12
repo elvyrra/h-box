@@ -1,0 +1,1 @@
+<img class="" ko-attr="{src : data}"/>

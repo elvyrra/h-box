@@ -1,0 +1,8 @@
+{
+    "title": "H Box",
+    "description": "This plugin is used to store, share , and edit files between application users. This plugin can store any type of file, and edit programming files, office files (.doc, .docx, .xls, .xlsx, ppt, pptx)",
+    "version": "1.0.0",
+    "author": "Elvyrra S.A.S",
+    "dependencies": [],
+    "logo" : "logo.png"
+}

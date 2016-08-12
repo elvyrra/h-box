@@ -1,0 +1,58 @@
+; Permissions
+permission-name-access-plugin = "Access Hbox"
+
+; Menu
+menu-title = "H Box"
+
+; Main page
+main-page-title = "H Box"
+
+; Tree widget
+tree-widget-title = "Explorer"
+root-folder-name = "Root"
+
+; Tabs
+tabs-folder-content-title = "Explorer"
+
+; Folder content
+folder-content-name-label = "Name"
+folder-content-mtime-label = "last modified on"
+upload-file-title = "Upload files"
+create-folder-title = "Creata a sub folder"
+rename-element-title = "Rename"
+delete-element-title = "Delete"
+download-element-title = "Download"
+move-element-title = "Move to ..."
+
+
+; Error messages
+read-file-forbidden-message = "You don't have privileges to read this file"
+read-folder-forbidden-message = "You don't have privileges to read the content of this folder"
+write-file-forbidden-message = "You don't have privileges to modify this file"
+write-folder-forbidden-message = "You don't have privileges to modify the content of this folder"
+delete-file-forbidden-message = "You don't have privileges to delete this file"
+delete-folder-forbidden-message = "You don't have the privileges to delete this folder and it content"
+
+; Form to create a new folder
+create-folder-title = "Create a new folder"
+create-folder-name-label = "Folder name"
+
+; Upload form
+upload-file-title = "Uplaod a new file"
+upload-file-form-file-label = "File to upload"
+upload-file-form-upload-btn = "Upload"
+
+; Edit a file
+close-file-confirmation = "{filename} is not saved. Do you really want to close it and loose the changes ?"
+
+; Rename a file
+rename-element-form-title = "Rename a file / folder"
+rename-element-name-label = "New name"
+
+; Delete a file / folder
+delete-element-confirmation = "Do you really want to delete this element ?"
+delete-element-form-title = "Delete a file / folder"
+
+; Move an element in a folder
+move-element-form-title = "Move a file / folder to ..."
+move-element-form-intro = "Select the folder where you want to move <b ko-text="name"></b> into."
