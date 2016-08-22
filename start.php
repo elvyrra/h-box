@@ -69,6 +69,23 @@ App::router()->prefix('/h-box', function() {
             ),
             'action' => 'ElementController.move'
         ));
+
+
+        // Share a file / folder with a user / a role
+        App::router()->post('h-box-share-element', '/elements/{elementId}/share', array(
+            'where' => array(
+                'elementId' => '\d+'
+            ),
+            'action' => 'ElementController.share'
+        ));
+
+        // Autocomplete users and roles an element can be shared with
+        App::router()->get('h-box-share-element-autocomplete', '/elements/{elementId}/share-autocomplete-users', array(
+            'where' => array(
+                'elementId' => '\d+'
+            ),
+            'action' => 'ElementController.autocompleteForShare'
+        ));
     });
 
     // Display a static file

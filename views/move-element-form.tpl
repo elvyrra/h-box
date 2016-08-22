@@ -7,7 +7,7 @@
 <!-- /ko -->
 
 <div class="ko-template" id="move-element-tree">
-    <li ko-visible="isFolder && $data !== $root.processingElement()">
+    <li ko-if="isFolder && $data !== $root.processingElement()">
         <input type="checkbox" ko-attr="{id : 'move-develop-folder-' + $data.id}" class="hidden" name="develop" ko-checked="developedInMoveForm"/>
         <label ko-attr="{for : id ? 'move-develop-folder-' + id : ''}">
             <i class="icon icon-lg icon-fw" ko-class="developedInMoveForm() ? 'icon-caret-down' : 'icon-caret-right'"></i>

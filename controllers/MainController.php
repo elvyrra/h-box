@@ -29,7 +29,6 @@ class MainController extends Controller {
             return $element->formatForJavaScript();
         }, $allElements);
 
-
         return LeftSidebarTab::make(array(
             'tabId' => 'hbox-main-page',
             'title' => Lang::get($this->_plugin . '.main-page-title'),
@@ -42,7 +41,8 @@ class MainController extends Controller {
                         'uploadFile' => FileController::getInstance()->upload(),
                         'renameElement' => ElementController::getInstance()->rename(),
                         'deleteElement' => ElementController::getInstance()->delete(),
-                        'moveElement' => ElementController::getInstance()->move()
+                        'moveElement' => ElementController::getInstance()->move(),
+                        'shareElement' => ElementController::getInstance()->share()
                     ),
                     'editorTemplates' => array(
                         'image' => ImageEditor::display(),

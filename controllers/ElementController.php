@@ -57,6 +57,19 @@ class ElementController extends Controller {
                 throw ForbiddenException(Lang::get($this->_plugin . '.delete-' . $element->type . '-forbidden-message'));
             }
 
+            $elementWithSameName = BoxElement::getByExample(new DBExample(array(
+                'parentId' => $element->parentId,
+                'name' => $form->getData('name'),
+                'type' => $element->type,
+                'id' => array(
+                    '$ne' => $element->id
+                )
+            )));
+
+            if($elementWithSameName) {
+                return $form->response(Form::STATUS_CHECK_ERROR, Lang::get($this->_plugin . '.rename-element-name-exists-error', array('type' => $element->type)));
+            }
+
             try {
                 $element->set(array(
                     'name' => $form->getData('name'),
@@ -117,12 +130,22 @@ class ElementController extends Controller {
         else {
             try {
                 $element = BoxElement::getById($this->elementId);
+                $parent = BoxElement::getById($element->parentId);
 
-                if(!$element->isRemovable()) {
+                if(!$element->isWritable()) {
                     throw ForbiddenException(Lang::get($this->_plugin . '.delete-' . $element->type . '-forbidden-message'));
                 }
 
                 $element->delete();
+
+                // Update the mtime of the parent folder
+                if($parent->id) {
+                    $parent->save();
+                }
+
+                $form->addReturn(array(
+                    'parentFolder' => $parent->formatForJavaScript()
+                ));
 
                 return $form->response(Form::STATUS_SUCCESS);
             }
@@ -217,7 +240,8 @@ class ElementController extends Controller {
             $element = BoxElement::getById($this->elementId);
 
             $parentId = $form->getData('parentId');
-            $parent = $parentId ? BoxElement::getById($parentId) : BoxElement::getRootElement();
+            $parent = BoxElement::getById($parentId);
+            $oldParent = BoxElement::getById($element->parentId);
 
             if(!$element->isWritable()) {
                 throw ForbiddenException(Lang::get($this->_plugin . '.read-' . $element->type . '-forbidden-message'));
@@ -227,6 +251,23 @@ class ElementController extends Controller {
                 throw ForbiddenException(Lang::get($this->_plugin . '.read-' . $parent->type . '-forbidden-message'));
             }
 
+            if(!$oldParent->isWritable()) {
+                throw ForbiddenException(Lang::get($this->_plugin . '.read-' . $oldParent->type . '-forbidden-message'));
+            }
+
+            $existing = BoxElement::getByExample(new DBExample(array(
+                'type' => $element->type,
+                'name' => $element->name,
+                'parentId' => $parentId
+            )));
+
+            if($existing) {
+                // Cannot move the file in a folder if another element exists with the same name in the new parent folder
+                return $form->response(Form::STATUS_ERROR, Lang::get($this->_plugin . '.move-element-name-exists-error', array(
+                    'type' => $element->type
+                )));
+            }
+
             try {
                 $element->set(array(
                     'parentId' => $parent->id
@@ -234,13 +275,201 @@ class ElementController extends Controller {
 
                 $element->save();
 
-                $form->addReturn('parentId', $parent->id);
+                // Update the old and new parent folders mtime
+                if($oldParent->id) {
+                    $oldParent->save();
+                }
+
+                $parent->save();
+
+                $form->addReturn(array(
+                    'oldParent' => $oldParent->formatForJavaScript(),
+                    'newParent' => $parent->formatForJavaScript()
+                ));
 
                 return $form->response(Form::STATUS_SUCCESS);
             }
             catch(\Exception $e) {
-                return $form->response(Form::STATUS_ERROR);
+                return $form->response(Form::STATUS_ERROR, $e->getMessage());
             }
         }
+    }
+
+
+    public function share() {
+        $form = new Form(array(
+            'id' => 'hbox-share-element-form',
+            'attributes' => array(
+                'ko-with' => '$root.dialogs.shareElement',
+            ),
+            'fieldsets' => array(
+                'with' => array(
+                    new TextInput(array(
+                        'name' => 'with',
+                        'label' => Lang::get($this->_plugin . '.share-form-with-label'),
+                        'attributes' => array (
+                            'ko-autocomplete' => '{source : autocompleteUrl, change : change}',
+                            'ko-value' => 'shareWith',
+                            'autocomplete' => 'false'
+                        )
+                    )),
+                ),
+
+                'shared' => array(
+                    'legend' => Lang::get($this->_plugin . '.share-form-shared-legend'),
+
+                    new HtmlInput(array(
+                        'value' => View::make($this->getPlugin()->getView('edit-element-sharing.tpl'))
+                    ))
+                ),
+
+
+
+                'submits' => array(
+                    new SubmitInput(array(
+                        'name' => 'valid',
+                        'value' => Lang::get('main.valid-button')
+                    )),
+
+                    new ButtonInput(array(
+                        'name' => 'cancel',
+                        'value' => Lang::get('main.cancel-button'),
+                        'attributes' => array (
+                            'ko-click' => 'function() {open(null);}'
+                        )
+                    ))
+                )
+            )
+        ));
+
+        if(!$form->submitted()) {
+            $this->addKeysToJavaScript(
+                $this->_plugin . '.share-form-write-file-label',
+                $this->_plugin . '.share-form-write-folder-label'
+            );
+
+            return Dialogbox::make(array(
+                'icon' => 'share-alt',
+                'title' => Lang::get($this->_plugin . '.share-form-title'),
+                'page' => $form
+            ));
+        }
+        else {
+            try {
+                $element = BoxElement::getById($this->elementId);
+                if(!$element) {
+                    throw new PageNotFound();
+                }
+
+                $me = App::session()->getUser();
+                if($element->ownerId !== $me->id && !$me->isAllowed('admin.all')) {
+                    throw new ForbiddenException(Lang::get($this->_plugin . '.share-' . $element->type . '-forbidden-message'));
+                }
+
+                $usernames = App::request()->getBody('users');
+                if(!empty($usernames)) {
+
+                    $canWrite = App::request()->getBody('canWrite');
+
+
+                    $users = User::getListByExample(new DBExample(array(
+                        'username' => array(
+                            '$in' => $usernames
+                        )
+                    )));
+
+                    foreach($users as $user) {
+                        if(!$user || !$user->isAllowed($this->_plugin . '.access-plugin')) {
+                            throw new ForbiddenException(Lang::get($this->_plugin . '.share-element-user-forbidden-message', array(
+                                'username' => $user->username
+                            )));
+                        }
+                    }
+
+                    $notifRecipients = array();
+                    $oldPermissions = $element->permissions['users'];
+                    $element->permissions['users'] = [];
+
+                    foreach($users as $user) {
+                        if(empty($oldPermissions[$user->id])) {
+                            $notifRecipients[] = $user;
+                        }
+
+                        $element->permissions['users'][$user->id] = array(
+                            'read' => true,
+                            'write' => !empty($canWrite[$user->username])
+                        );
+
+                        $element->save();
+                    }
+
+                    foreach($notifRecipients as $recipient) {
+                        $mail = new Mail();
+                        $mail->from($me->email, $me->getDisplayName());
+                        $mail->to($recipient->email);
+                        $mail->subject(Lang::get($this->_plugin . '.share-email-title', array(
+                            'username' => $me->username
+                        )));
+                        $mail->title(Lang::get($this->_plugin . '.share-email-title', array(
+                            'username' => $me->username
+                        )));
+                        $mail->content(Lang::get($this->_plugin . '.share-email-title', array(
+                            'username' => $me->username,
+                            'type' => $element->type,
+                            'name' => $element->name
+                        )));
+                        $mail->send();
+                    }
+                }
+                else {
+                    $element->permissions['users'] = [];
+                    $element->save();
+                }
+
+                $form->addReturn($element->formatForJavaScript());
+
+                return $form->response(Form::STATUS_SUCCESS);
+            }
+            catch(\Exception $e) {
+                return $form->response(Form::STATUS_ERROR, $e->getMessage());
+            }
+        }
+    }
+
+
+    public function autocompleteForShare() {
+        $element = BoxElement::getById($this->elementId);
+
+        $matchingUsers = User::getListByExample(new DBExample(array(
+            'username' => array(
+                '$like' => '%' . App::request()->getParams('q') . '%'
+            ),
+            'active' => 1
+        )));
+
+        $users = array_filter($matchingUsers, function($user) use($element){
+            if(!$user->isAllowed('h-box.access-plugin')) {
+                Utils::debug('cannot access : ' . $user->username);
+                return false;
+            }
+
+            return true;
+        });
+
+        User::getListByExample(new DBExample(array(
+            'username' => array(
+                '$like' => '%' . App::request()->getParams('q') . '%'
+            )
+        )));
+
+        App::response()->setContentType('json');
+
+        return array_map(function($user) {
+            return array(
+                'type' => 'users',
+                'id' => (int) $user->id,
+                'label' => $user->username,
+            );
+        }, $users);
     }
 }

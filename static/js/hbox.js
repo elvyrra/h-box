@@ -5,36 +5,40 @@
     /**
      * This class describes the behavior of an element in Hbox
      * @param {Object} data  The initial data of the element
-     * @param {HBox} manager The hbox manager
      */
-    var HBoxElement = function(data, manager) {
-        this.manager = manager;
-
+    var HBoxElement = function(data) {
         this.name = ko.observable(data.name);
         this.id = parseInt(data.id, 10);
         this.type = data.type;
         this.ctime = ko.observable(data.ctime);
         this.mtime = ko.observable(data.mtime);
-        this.parentId = ko.observable(parseInt(data.parentId, 10));
-        this.extension = ko.observable((data.extension || '').toLowerCase());
+        this.parentId = parseInt(data.parentId, 10);
+        this.parent = null;
+        this.canShare = data.canShare;
+        this.shared = ko.observableArray(data.shared);
 
-        this.parent = ko.computed(function() {
-            return this.manager.elements().find(function(element) {
-                return element.id === this.parentId();
-            }.bind(this));
-        }.bind(this));
+        this.writable = ko.observable(data.writable);
 
-        this.parents = ko.computed(function() {
-            if(!this.parent()) {
+        this.modifiedBy = ko.observable(data.modifiedBy);
+
+        this.parents = function() {
+            if(!this.parent) {
                 return [];
             }
 
-            return this.parent().parents().concat([this.parent()]);
-        }.bind(this));
+            return this.parent.parents().concat([this.parent]);
+        }.bind(this);
 
         this.developed = ko.observable(!this.id);
 
+        this.extension = ko.computed(function() {
+            return this.name().split('.').pop().toLowerCase();
+        }.bind(this));
+
         this.developedInMoveForm = ko.observable(!this.id);
+        this.developedInMoveForm.extend({
+            notify: 'always'
+        });
 
         this.isFolder = this.type === 'folder';
 
@@ -73,25 +77,7 @@
         }.bind(this));
 
 
-        this.children = ko.computed(function() {
-            return this.manager.elements().filter(function(element) {
-                return element.parentId() === this.id;
-            }.bind(this));
-        }.bind(this));
-
-        // this.parent.subscribe(function(oldValue) {
-        //     this.oldParent = oldValue;
-        // }, this, 'beforeChange');
-
-        // this.parent.subscribe(function(newParent) {
-        //     if(this.oldParent) {
-        //         this.oldParent.getChildren();
-
-        //         delete this.oldParent;
-        //     }
-
-        //     newParent.getChildren();
-        // }.bind(this));
+        this.children = ko.observableArray([]);
 
         this.sortedChildren = {
             name :  ko.computed(function() {
@@ -230,59 +216,97 @@
     };
 
 
+    /**
+     * Display the tab containing the file editor
+     */
     HBoxElement.prototype.showTab = function() {
         $('[data-toggle="tab"][href="#' + this.tab.id + '"]').tab('show');
     };
 
-    // HBoxElement.prototype.getChildren = function() {
-    //     var currentChildren = this.children();
 
-    //     this.manager.
-    //     this.children(
-    //         this.manager.elements().filter(function(element) {
-    //             return element.parentId() === this.id;
-    //         }.bind(this))
-    //     );
-    // };
+    /**
+     * Update element data
+     * @param {Object} data The data to update on the element
+     */
+    HBoxElement.prototype.setData = function(data) {
+        this.name(data.name || this.name());
+        this.mtime(data.mtime || this.mtime());
+        this.modifiedBy(data.modifiedBy || this.modifiedBy());
+        this.shared(data.shared || this.shared());
+    };
+
+
+    HBoxElement.prototype.share = function(user, rights) {
+        var existingSharing = this.shared().find(function(share) {
+            return share.user === user;
+        });
+
+        if(!existingSharing) {
+            this.shared.push({
+                user : user,
+                rights : {
+                    write : ko.observable(rights.write)
+                }
+            });
+        }
+    };
 
 
     var HBox = function(data) {
-        debugger;
-        this.elements = ko.observableArray([]);
+        var elements = [];
 
-        data.forEach(function(element) {
-            this.addElement(new HBoxElement(element, this));
+        data.forEach(function(item) {
+            elements.push(new HBoxElement(item));
+        });
+
+        elements.forEach(function(parent) {
+            elements.forEach(function(child) {
+                if(child.parentId === parent.id) {
+                    this.moveElement(child, parent);
+                }
+            }.bind(this));
         }.bind(this));
 
-        // this.elements().forEach(function(element) {
-        //     element.getChildren();
-        // });
-
-        this.rootElement = this.elements()[0];
+        this.rootElement = elements[0];
 
         // The element that is renamning / deleting
         this.processingElement = ko.observable(null);
+
+        this.processingElement.extend({
+            notify : 'always'
+        });
 
         // Manage the dialog forms
         this.dialogs = {
             //  Form to upload a new file
             uploadFile : {
                 form : app.forms['hbox-upload-file-form'],
+                open : ko.observable(false),
                 action : function() {
                     return app.getUri('h-box-upload-file', {
                         folderId : this.selectedFolder().id
                     });
                 }.bind(this),
                 onsuccess : function(elements) {
-                    elements.forEach(function(element) {
-                        element.type = 'file';
+                    elements.elements.forEach(function(data) {
+                        data.type = 'file';
 
-                        this.addElement(new HBoxElement(element, this));
+                        var element = this.selectedFolder().children().find(function(child) {
+                            return child.id === data.id;
+                        });
+
+                        if(element) {
+                            element.mtime(data.mtime);
+                        }
+                        else {
+                            element = new HBoxElement(data);
+                        }
+
+                        this.moveElement(element, this.selectedFolder());
                     }.bind(this));
 
-                    return false;
-                }.bind(this),
-                open : ko.observable(false)
+                    this.selectedFolder().setData(elements.folder);
+                }.bind(this)
             },
 
             // Form to create a new folder
@@ -290,16 +314,21 @@
                 form : app.forms['hbox-create-folder-form'],
                 open : ko.observable(false),
 
-                onsuccess : function(data) {
-                    data.type = 'folder';
-
-                    this.addElement(new HBoxElement(data, this));
-                }.bind(this),
-
                 action : function() {
                     return app.getUri('h-box-create-folder', {
                         folderId : this.selectedFolder().id
                     });
+                }.bind(this),
+
+                onsuccess : function(data) {
+                    data.created.type = 'folder';
+
+                    var element = new HBoxElement(data.created);
+
+                    this.moveElement(element, this.selectedFolder());
+
+                    // Update the mtime of the parent folder
+                    this.selectedFolder().setData(data.parentFolder);
                 }.bind(this)
             },
 
@@ -309,7 +338,7 @@
                 name : ko.observable(''),
                 open : ko.observable(false),
                 onsuccess : function(data) {
-                    this.processingElement().name(data.name);
+                    this.processingElement().setData(data);
 
                     this.processingElement(null);
                 }.bind(this),
@@ -335,11 +364,14 @@
                         elementId : element.id
                     });
                 }.bind(this),
-                onsuccess : function() {
+                onsuccess : function(data) {
                     var element = this.processingElement(),
-                        index = this.elements().indexOf(element);
+                        parent = element.parent,
+                        index = parent.children().indexOf(element);
 
-                    this.elements.splice(index, 1);
+                    parent.children.splice(index, 1);
+
+                    parent.setData(data.parentFolder);
 
                     this.processingElement(null);
                 }.bind(this)
@@ -361,18 +393,78 @@
                         elementId : element.id
                     });
                 }.bind(this),
-                onsuccess : function() {
+                onsuccess : function(data) {
                     var element = this.processingElement(),
                         parent = this.dialogs.moveElement.parent();
 
-                    element.parentId(parent.id);
-
-                    this.selectedFolder(parent);
+                    element.parent.setData(data.oldParent);
+                    this.moveElement(element, parent);
+                    parent.setData(data.newParent);
 
                     this.processingElement(null);
-
-                    return false;
                 }.bind(this)
+            },
+
+            // Form to share an element
+            shareElement : {
+                form : app.forms['hbox-share-element-form'],
+                open : ko.observable(false),
+                autocompleteUrl : ko.observable(''),
+                label : ko.observable(''),
+                share : ko.observableArray([]),
+                shareWith : ko.observable(),
+                change : function(item) {
+                    var dialog = this.dialogs.shareElement;
+
+                    if(item) {
+                        dialog.share.push({
+                            user : item.label,
+                            rights : {
+                                write : false
+                            }
+                        });
+                        dialog.shareWith('');
+                    }
+                }.bind(this),
+                unshare : function(share) {
+                    var dialog = this.dialogs.shareElement;
+                    var index = dialog.share().indexOf(share);
+
+                    dialog.share.splice(index, 1);
+                }.bind(this),
+                action : function(element) {
+                    this.processingElement(element);
+                    var dialog = this.dialogs.shareElement;
+
+                    dialog.autocompleteUrl(app.getUri('h-box-share-element-autocomplete', {
+                        elementId : element.id
+                    }));
+
+                    dialog.shareWith('');
+
+                    var share = [];
+
+                    element.shared().forEach(function(item) {
+                        share.push({
+                            user : item.user,
+                            rights : {
+                                write : item.rights.write
+                            }
+                        });
+                    });
+                    dialog.share(share);
+
+                    dialog.label(Lang.get('h-box.share-form-write-' + element.type + '-label'));
+
+                    return app.getUri('h-box-share-element', {
+                        elementId : element.id
+                    });
+                }.bind(this),
+                onsuccess : function(data) {
+                    this.processingElement().shared(data.shared);
+
+                    this.processingElement(null);
+                }
             }
         };
 
@@ -425,16 +517,18 @@
     };
 
 
-    HBox.prototype.addElement = function(element) {
-        this.elements.push(element);
+    HBox.prototype.moveElement = function(element, parent) {
+        var previousParent = element.parent;
 
-        // element.parent().getChildren();
-    };
+        parent.children.push(element);
+        element.parent = parent;
+        element.parentId = parent.id;
 
-    HBox.prototype.removeElement = function(element) {
+        if(previousParent) {
+            var index = previousParent.children().indexOf(element);
 
-
-        // parent.getChildren();
+            previousParent.children.splice(index, 1);
+        }
     };
 
 
@@ -576,10 +670,12 @@
         return false;
     };
 
-    var hboxManager = new HBox(JSON.parse($('#hbox-all-elements').val()));
+    var data = $('#hbox-all-elements').val();
 
-    // ko.applyBindings(hboxManager, document.getElementById('hbox-tree-widget'));
-    // ko.applyBindings(hboxManager, document.getElementById('hbox-page-content'));
+    $('#hbox-all-elements').remove();
+    var hboxManager = new HBox(JSON.parse(data));
+
+
     ko.applyBindings(hboxManager, document.getElementById('hbox-main-page'));
 
     window.hbox  = hboxManager;

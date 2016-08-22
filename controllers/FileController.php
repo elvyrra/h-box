@@ -48,6 +48,8 @@ class FileController extends Controller {
             ));
         }
         elseif($form->check()) {
+            $folder = BoxElement::getById($this->folderId);
+
             try {
                 $upload = Upload::getInstance('files');
 
@@ -60,36 +62,65 @@ class FileController extends Controller {
                 $elements = [];
 
                 foreach($files as $file) {
-
-                    // Move the file in the userfiles directory of the plugin
-                    $filename = uniqid('file-');
-                    $directory = $this->getPlugin()->getUserfilesDir();
-
-                    $path = $directory . $filename;
-
-                    $upload->move($file, $directory, $filename);
-
-                    // Save the file in the database
-                    $userId = App::session()->getUser()->id;
-                    $element = new BoxElement(array(
+                    $element = BoxElement::getByExample(new DBExample(array(
                         'type' => 'file',
                         'parentId' => $this->folderId,
-                        'name' => $file->basename,
-                        'path' => $path,
-                        'mimeType' => $file->mime,
-                        'extension' => $file->extension,
-                        'ownerId' => $userId,
-                        'ctime' => time(),
-                        'mtime' => time(),
-                        'modifiedBy' => $userId
-                    ));
+                        'name' => $file->basename
+                    )));
+
+                    if($element) {
+                        if(!$element->isWritable()) {
+                            // The file is not writable by the user
+                            throw new ForbiddenException(Lang::get($this->_plugin . '.write-file-forbidden-message'));
+                        }
+
+                        // Update an existing file
+                        $path = $element->path;
+
+                        $element->set(array(
+                            'mimeType' => $file->mime
+                        ));
+                    }
+                    else {
+                        // Create a new file
+                        if(!$folder->isWritable()) {
+                            // No file can be created in this folder by the user
+                            throw new ForbiddenException(Lang::get($this->_plugin . '.write-folder-forbidden-message'));
+                        }
+
+                        // Move the file in the userfiles directory of the plugin
+                        $path = uniqid($this->getPlugin()->getUserfilesDir() . 'file-');
+
+                        // Save the file in the database
+                        $userId = App::session()->getUser()->id;
+                        $element = new BoxElement(array(
+                            'type' => 'file',
+                            'parentId' => $this->folderId,
+                            'name' => $file->basename,
+                            'path' => $path,
+                            'mimeType' => $file->mime,
+                            'ownerId' => $userId,
+                            'ctime' => time(),
+                        ));
+                    }
+
+                    $upload->move($file, dirname($path), basename($path));
 
                     $element->save();
+
+                    // Update the mtime of the parent folder
+                    if($folder->id) {
+                        $folder->save();
+                    }
 
                     $elements[] = $element->formatForJavaScript();
                 }
 
-                $form->addReturn($elements);
+                $form->addReturn(array(
+                    'elements' => $elements,
+                    'folder' => $folder->formatForJavaScript()
+                ));
+
                 return $form->response(Form::STATUS_SUCCESS);
             }
             catch(\Exception $e) {
@@ -210,6 +241,11 @@ class FileController extends Controller {
 
         App::response()->setContentType($file->mimeType);
 
+        if(preg_match('/^(audio|video)/', $file->mimeType)) {
+            $stream = new MediaStream($file);
+            $stream->start();
+            return;
+        }
         return file_get_contents($file->path);
     }
 }

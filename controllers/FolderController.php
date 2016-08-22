@@ -50,6 +50,24 @@ class FolderController extends Controller {
             ));
         }
         elseif($form->check()) {
+            $parentFolder = BoxElement::getById($this->folderId);
+
+            if(!$parentFolder->isWritable()) {
+                // No file can be created in this folder by the user
+                throw new ForbiddenException(Lang::get($this->_plugin . '.write-folder-forbidden-message'));
+            }
+
+            // Check if another folder exists with the same name in this folder
+            $folderWithSameName = BoxElement::getByExample(new DBExample(array(
+                'type' => 'folder',
+                'parentId' => $this->folderId,
+                'name' => $form->getData('name')
+            )));
+
+            if($folderWithSameName) {
+                return $form->response(Form::STATUS_CHECK_ERROR, Lang::get($this->_plugin . '.create-folder-name-exists-error'));
+            }
+
             try {
                 $folder = new BoxElement(array(
                     'type' => BoxElement::ELEMENT_FOLDER,
@@ -63,7 +81,15 @@ class FolderController extends Controller {
 
                 $folder->save();
 
-                $form->addReturn($folder->formatForJavaScript());
+                // Update the mtime of the parent folder
+                if($parentFolder->id) {
+                    $parentFolder->save();
+                }
+
+                $form->addReturn(array(
+                    'created' => $folder->formatForJavaScript(),
+                    'parentFolder' => $parentFolder->formatForJavaScript()
+                ));
 
                 return $form->response(Form::STATUS_SUCCESS);
             }

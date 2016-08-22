@@ -23,6 +23,8 @@ rename-element-title = "Rename"
 delete-element-title = "Delete"
 download-element-title = "Download"
 move-element-title = "Move to ..."
+share-element-title = "Share"
+shared-element-title = "Shared"
 
 
 ; Error messages
@@ -32,10 +34,14 @@ write-file-forbidden-message = "You don't have privileges to modify this file"
 write-folder-forbidden-message = "You don't have privileges to modify the content of this folder"
 delete-file-forbidden-message = "You don't have privileges to delete this file"
 delete-folder-forbidden-message = "You don't have the privileges to delete this folder and it content"
+share-folder-forbidden-message = "This folder is not yours. You cannot share it"
+share-file-forbidden-message = "This file is not yours. You cannot share it"
+share-element-user-forbidden-message = "{username} is not allowed to access HBox plugin. You cannot share an element with"
 
 ; Form to create a new folder
 create-folder-title = "Create a new folder"
 create-folder-name-label = "Folder name"
+create-folder-name-exists-error = "Another folder exists with the same name in this directory."
 
 ; Upload form
 upload-file-title = "Uplaod a new file"
@@ -48,6 +54,7 @@ close-file-confirmation = "{filename} is not saved. Do you really want to close 
 ; Rename a file
 rename-element-form-title = "Rename a file / folder"
 rename-element-name-label = "New name"
+rename-element-name-exists-error = "Another {type} exists with the same name in this directory."
 
 ; Delete a file / folder
 delete-element-confirmation = "Do you really want to delete this element ?"
@@ -56,3 +63,16 @@ delete-element-form-title = "Delete a file / folder"
 ; Move an element in a folder
 move-element-form-title = "Move a file / folder to ..."
 move-element-form-intro = "Select the folder where you want to move <b ko-text="name"></b> into."
+move-element-name-exists-error = "Another {type} exists with the same name in this directory."
+
+; Share an element
+share-form-with-label = "Share this element with"
+share-form-title = "Share a folder / file"
+share-form-shared-legend = "Shared with"
+share-form-write-file-label = "Allow the user to overwirte this file ?"
+share-form-write-folder-label = "Allow the user to overwirte this folder and it content ?"
+share-email-title = "{username} shared you a file on HBox"
+share-email-content = "{username} shared you the {type} {name} on HBox"
+remove-sharing-title = "Do not share this file with this user anymore"
+sharing-table-with-label = "Shared with"
+sharing-table-write-label = "Allowed to write ?"

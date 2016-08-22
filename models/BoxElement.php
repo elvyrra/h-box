@@ -98,11 +98,11 @@ class BoxElement extends Model {
 
 
     public static function getById($id) {
-        if(!isset(self::$instances[$id])) {
-            self::$instances[$id] = parent::getById($id);
+        if($id) {
+            return parent::getById($id);
         }
 
-        return self::$instances[$id];
+        return self::getRootElement();
     }
 
     /**
@@ -166,23 +166,31 @@ class BoxElement extends Model {
             $permissions = array(
                 'read' => true,
                 'write' => true,
-                'delete' => true
             );
         }
         elseif(!empty($this->permissions['users'][$user->id])) {
             // Permissions are defined for the user
             $permissions = $this->permissions['users'][$user->id];
+            $permissions['read'] = true;
         }
         elseif(!empty($this->permissions['roles'][$user->roleId])) {
             // Permissions are defined for the user's role
             $permissions = $this->permissions['roles'][$user->roleId];
+            $permissions['read'] = true;
+        }
+        elseif($this->parentId) {
+            $parent = self::getById($this->parentId);
+
+            $permissions = array(
+                'read' => $parent->isReadable($user),
+                'write' => $parent->isWritable($user)
+            );
         }
         else {
             // No permissions are defined for the user, the user does not have any permission on the element
             $permissions = array(
                 'read' => false,
-                'write' => false,
-                'delete' => false
+                'write' => false
             );
         }
 
@@ -203,20 +211,11 @@ class BoxElement extends Model {
         return $this->getPermissions($user, 'write');
     }
 
-
-    /**
-     * Check if an element is removable by a user
-     */
-    public function isRemovable(\Hawk\User $user = null) {
-        return $this->getPermissions($user, 'delete');
-    }
-
-
     /**
      * Prepare the data to be inserted in the database when saving an elements
      * @returns array The data to insert
      */
-    public function prepareDatabaseData() {
+    protected function prepareDatabaseData() {
         $insert = parent::prepareDatabaseData();
 
         if(!empty($insert['permissions'])) {
@@ -226,13 +225,12 @@ class BoxElement extends Model {
         return $insert;
     }
 
-
-    public function set($name, $value = null) {
-        parent::set($name, $value);
-
+    public function save() {
         $this->mtime = time();
         $this->modifiedBy = App::session()->getUser()->id;
         $this->extension = pathinfo($this->name, PATHINFO_EXTENSION);
+
+        parent::save();
     }
 
     /**
@@ -293,8 +291,9 @@ class BoxElement extends Model {
             'type' => $this->type,
             'parentId' => $this->parentId === null ? null : (int) $this->parentId,
             'name' => $this->name,
-            'owner' => !empty($this->ownerId) ? User::getById($this->ownerId)->getDisplayName() : '',
-            'modifiedBy' => !empty($this->modifiedBy) ? User::getById($this->modifiedBy)->getDisplayName() : ''
+            'owner' => !empty($this->ownerId) ? User::getById($this->ownerId)->username : '',
+            'modifiedBy' => !empty($this->modifiedBy) ? User::getById($this->modifiedBy)->username : '',
+            'writable' => $this->isWritable()
         );
 
 
@@ -306,6 +305,21 @@ class BoxElement extends Model {
         }
         if(!empty($this->mtime)) {
             $output->mtime = date(Lang::get('main.time-format'), (int) $this->mtime);
+        }
+
+        $user = App::session()->getUser();
+        $output->shared = [];
+
+        if($this->id && ($user->isAllowed('admin.all') || $user->id === $this->ownerId)) {
+            $output->canShare = true;
+            if(!empty($this->permissions['users'])) {
+                foreach($this->permissions['users'] as $userId => $rights) {
+                    $output->shared[] = array(
+                        'user' => User::getById($userId)->username,
+                        'rights' => $rights
+                    );
+                }
+            }
         }
 
         return $output;
