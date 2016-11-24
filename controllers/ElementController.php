@@ -12,7 +12,7 @@ class ElementController extends Controller {
             'id' => 'hbox-rename-element-form',
             'model' => 'BoxElement',
             'attributes' => array(
-                'ko-with' => 'dialogs.renameElement'
+                'e-with' => 'dialogs.renameElement'
             ),
             'fieldsets' => array(
                 'form' => array(
@@ -21,7 +21,7 @@ class ElementController extends Controller {
                         'required' => true,
                         'label' => Lang::get($this->_plugin . '.rename-element-name-label'),
                         'attributes' => array(
-                            'ko-value' => 'name'
+                            'e-value' => 'name'
                         )
                     ))
                 ),
@@ -36,7 +36,7 @@ class ElementController extends Controller {
                         'name' => 'cancel',
                         'value' => Lang::get('main.cancel-button'),
                         'attributes' => array (
-                            'ko-click' => 'function() {open(null);}'
+                            'e-click' => 'open = null'
                         )
                     ))
                 )
@@ -95,7 +95,7 @@ class ElementController extends Controller {
             'id' => 'hbox-delete-element-form',
             'method' => 'delete',
             'attributes' => array(
-                'ko-with' => 'dialogs.deleteElement'
+                'e-with' => 'dialogs.deleteElement'
             ),
             'fieldsets' => array(
                 'form' => array(
@@ -113,7 +113,7 @@ class ElementController extends Controller {
                         'name' => 'cancel',
                         'value' => Lang::get('main.cancel-button'),
                         'attributes' => array(
-                            'ko-click' => 'function() {open(null);}'
+                            'e-click' => 'open = null'
                         )
                     ))
                 )
@@ -202,7 +202,7 @@ class ElementController extends Controller {
                     new HiddenInput(array(
                         'name' => 'parentId',
                         'attributes' => array(
-                            'ko-value' => 'dialogs.moveElement.parentId'
+                            'e-value' => 'dialogs.moveElement.parentId'
                         )
                     )),
                     new HtmlInput(array(
@@ -214,7 +214,7 @@ class ElementController extends Controller {
                         'name' => 'valid',
                         'value' => Lang::get('main.valid-button'),
                         'attributes' => array(
-                            'ko-disable' => '!$root.dialogs.moveElement.parent()'
+                            'e-disabled' => '!$root.dialogs.moveElement.parent()'
                         )
                     )),
 
@@ -222,7 +222,7 @@ class ElementController extends Controller {
                         'name' => 'cancel',
                         'value' => Lang::get('main.cancel-button'),
                         'attributes' => array (
-                            'ko-click' => 'function() {dialogs.moveElement.open(null);}'
+                            'e-click' => 'dialogs.moveElement.open = null'
                         )
                     ))
                 )
@@ -300,7 +300,7 @@ class ElementController extends Controller {
         $form = new Form(array(
             'id' => 'hbox-share-element-form',
             'attributes' => array(
-                'ko-with' => '$root.dialogs.shareElement',
+                'e-with' => '$root.dialogs.shareElement',
             ),
             'fieldsets' => array(
                 'with' => array(
@@ -308,8 +308,8 @@ class ElementController extends Controller {
                         'name' => 'with',
                         'label' => Lang::get($this->_plugin . '.share-form-with-label'),
                         'attributes' => array (
-                            'ko-autocomplete' => '{source : autocompleteUrl, change : change}',
-                            'ko-value' => 'shareWith',
+                            'e-autocomplete' => '{source : autocompleteUrl, change : change}',
+                            'e-value' => 'shareWith',
                             'autocomplete' => 'false'
                         )
                     )),
@@ -335,7 +335,7 @@ class ElementController extends Controller {
                         'name' => 'cancel',
                         'value' => Lang::get('main.cancel-button'),
                         'attributes' => array (
-                            'ko-click' => 'function() {open(null);}'
+                            'e-click' => 'open = null'
                         )
                     ))
                 )
@@ -449,7 +449,6 @@ class ElementController extends Controller {
 
         $users = array_filter($matchingUsers, function($user) use($element){
             if(!$user->isAllowed('h-box.access-plugin')) {
-                Utils::debug('cannot access : ' . $user->username);
                 return false;
             }
 
@@ -470,6 +469,6 @@ class ElementController extends Controller {
                 'id' => (int) $user->id,
                 'label' => $user->username,
             );
-        }, $users);
+        }, array_values($users));
     }
 }

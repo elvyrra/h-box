@@ -1,27 +1,22 @@
 <div role="tabpanel" id="hbox-tabs">
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="actve" ko-style="{ 'max-width': 'calc(90% / ' + (openFiles().length  + 1) + ' - 2px )' }">
+        <li role="presentation" class="actve" e-style="{ 'max-width': 'calc(90% / ' + (openFiles.length  + 1) + ' - 2px )' }">
             <a role="tab" data-toggle="tab" href="#hbox-folder-content">
                 {text key="h-box.tabs-folder-content-title"}
             </a>
         </li>
 
-        <!-- ko foreach: openFiles -->
-        <li role="presentation" ko-style="{ 'max-width': 'calc(90% / ' + ($parent.openFiles().length + 1) + ' - 2px )' }" ko-attr="{title : name}">
-            <a role="tab" data-toggle="tab" ko-attr="{ href: '#' + tab.id }">
-                <i class="icon" ko-class="'icon-' + icon()"></i>
-                <span ko-text="name"></span>
+        <li role="presentation" e-each="openFiles" e-style="{ 'max-width': 'calc(90% / ' + ($parent.openFiles.length + 1) + ' - 2px )' }" title="${name}">
+            <a role="tab" data-toggle="tab" e-attr="{href : '#' + tabId}">
+                <i class="icon icon-${ icon }"></i> ${name}
 
                 <span class="tab-action">
-                    <!-- ko if: !saved() -->
-                        {icon icon="circle" class="not-saved pull-right"}
-                    <!-- /ko -->
-                    {icon icon="times-circle" class="pull-right close-file" ko-click="$root.closeFile.bind($root)"}
+                    {icon icon="circle" class="not-saved pull-right" e-unless="saved"}
+                    {icon icon="times-circle" class="pull-right close-file" e-click="$root.closeFile.bind($root)"}
                 </span>
             </a>
         </li>
-        <!-- /ko -->
     </ul>
 
     <!-- Tab panes -->
@@ -30,9 +25,7 @@
             {import file="folder-content.tpl"}
         </div>
 
-        <!-- ko foreach: openFiles -->
-        <div role="tabpanel" class="tab-pane file-editor" ko-attr="{ id : tab.id }" ko-template="'hbox-editor-template-' + template()" ko-class="'file-editor-' + template()"></div>
-        <!-- /ko -->
+        <div e-each="openFiles" role="tabpanel" class="tab-pane file-editor" e-class="'file-editor-' + template" e-attr="{id : tabId}" e-template="'hbox-editor-template-' + template"></div>
     </div>
 </div>
 
@@ -43,7 +36,9 @@
 
 <!-- Editors templates -->
 {foreach($editorTemplates as $name => $template)}
-    <div class="ko-template" id="hbox-editor-template-{{ $name }}">
+    <template id="hbox-editor-template-{{ $name }}">
         {{ $template }}
-    </div>
+    </template>
 {/foreach}
+
+<input type="hidden" id="hbox-all-elements" value="{{ $allElements }}" />

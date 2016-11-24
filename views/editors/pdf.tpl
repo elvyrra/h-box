@@ -1,1 +1,1 @@
-<object class="file-editor pdf-editor" ko-attr="{data : data}"></object>
+<object class="file-editor pdf-editor" e-attr="{data : data}"></object>

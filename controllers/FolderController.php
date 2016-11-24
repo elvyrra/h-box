@@ -14,7 +14,7 @@ class FolderController extends Controller {
                 'id' => 0
             ),
             'attributes' => array(
-                'ko-with' => 'dialogs.newFolder'
+                'e-with' => 'dialogs.newFolder'
             ),
             'fieldsets' => array(
                 'form' => array(
@@ -35,7 +35,7 @@ class FolderController extends Controller {
                         'name' => 'cancel',
                         'value' => Lang::get('main.cancel-button'),
                         'attributes' => array(
-                            'ko-click' => 'function() {open(null);}'
+                            'e-click' => 'open = null'
                         )
                     ))
                 )

@@ -1,1 +1,1 @@
-<img class="" ko-attr="{src : data}"/>
+<img class="" e-attr="{src : data}" />

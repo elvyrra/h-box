@@ -1,24 +1,24 @@
-<!-- ko with: processingElement -->
-<p> {text key='h-box.move-element-form-intro'} </p>
-<!-- /ko -->
+<p e-with="processingElement"> {text key='h-box.move-element-form-intro'} </p>
 
-<!-- ko with : rootElement -->
-<ul ko-template="'move-element-tree'" class="root-folder"></ul>
-<!-- /ko -->
+<ul e-with="rootElement" class="root-folder">
+    <li e-template="'move-element-tree'"></li>
+</ul>
 
-<div class="ko-template" id="move-element-tree">
-    <li ko-if="isFolder && $data !== $root.processingElement()">
-        <input type="checkbox" ko-attr="{id : 'move-develop-folder-' + $data.id}" class="hidden" name="develop" ko-checked="developedInMoveForm"/>
-        <label ko-attr="{for : id ? 'move-develop-folder-' + id : ''}">
-            <i class="icon icon-lg icon-fw" ko-class="developedInMoveForm() ? 'icon-caret-down' : 'icon-caret-right'"></i>
-        </label>
+<template id="move-element-tree">
+    <input type="checkbox" id="move-develop-folder-${id}" class="hidden" name="develop" e-value="developedInMoveForm"/>
+    <label for="move-develop-folder-${id}" >
+        <i class="icon icon-lg icon-fw" e-class="developedInMoveForm ? 'icon-caret-down' : 'icon-caret-right'"></i>
+    </label>
 
-        <input type="radio" name="parent" ko-checked="$root.dialogs.moveElement.parent" ko-checkedValue="$data" ko-attr="{id : 'move-select-folder-' + id}"/>
-        <label class="element-name" ko-attr="{for : 'move-select-folder-' + id}" ko-class="{'text-primary bold' : $root.dialogs.moveElement.parentId() === id}">
-            <i class="icon icon-fw" ko-class="'icon-' + icon()"></i>
-            <span ko-text="name"></span>
-        </label>
+    <input type="radio" name="parent" e-value="$root.dialogs.moveElement.parentId" value="${id}" id="move-select-folder-${id}"/>
+    <label class="element-name" for="move-select-folder-${id}" e-class="{'text-primary bold' : $root.dialogs.moveElement.parentId === id}">
+        <i class="icon icon-fw icon-${ icon }"></i>
+        <span>${name}</span>
+    </label>
 
-        <ul ko-template="{name : 'move-element-tree', foreach: sortedChildren.name}"></ul>
-    </li>
-</div>
+    <ul>
+        <li e-each="{$data : children(), $sort : sortChilrenByname, $filter : function(elem) { return elem.isFolder && elem !== $root.processingElement }}">
+            <div e-template="'move-element-tree'"></div>
+        </li>
+    </ul>
+</template>

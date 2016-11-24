@@ -33,7 +33,7 @@ class EditorController extends Controller {
             'id' => 'hbox-edit-code-form',
             'method' => 'post',
             'attributes' => array(
-                'ko-attr' => '{id : "hbox-edit-code-form-" + id}'
+                'e-attr' => '{id : "hbox-edit-code-form-" + id}'
             )
             'inputs' => array(
                 new SubmitInput(array(
@@ -47,7 +47,7 @@ class EditorController extends Controller {
 
                 new HtmlInput(array(
                     'name' => 'ace',
-                    'value' => '<div id="' . uniqid() . '" contenteditable ko-ace="{language : extension, value : code}"></div>'
+                    'value' => '<div id="' . uniqid() . '" contenteditable e-ace="{language : extension, value : code}"></div>'
                 )),
             )
         ));

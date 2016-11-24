@@ -11,7 +11,7 @@ class FileController extends Controller {
         $form = new Form(array(
             'id' => 'hbox-upload-file-form',
             'attributes' => array(
-                'ko-with' => 'dialogs.uploadFile'
+                'e-with' => '$root.dialogs.uploadFile'
             ),
             'fieldsets' => array(
                 'form' => array(
@@ -33,7 +33,7 @@ class FileController extends Controller {
                         'name' => 'cancel',
                         'value' => Lang::get('main.cancel-button'),
                         'attributes' => array(
-                            'ko-click' => 'function() {open(null);}'
+                            'e-click' => 'open = null'
                         )
                     ))
                 )
@@ -235,7 +235,7 @@ class FileController extends Controller {
         $file = BoxElement::getById($token->fileId);
 
         if(!$file->isReadable($user)) {
-            throw ForbiddenException(Lang::get($this->_plugin . '.read-file-forbidden-message'));
+            throw new ForbiddenException(Lang::get($this->_plugin . '.read-file-forbidden-message'));
         }
 
 

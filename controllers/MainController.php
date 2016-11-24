@@ -12,10 +12,7 @@ class MainController extends Controller {
     public function index() {
         $this->addCss($this->getPlugin()->getCssUrl('hbox.less'));
         $this->addJavaScript($this->getPlugin()->getjsUrl('hbox.js'));
-        // $this->addJavaScript($this->getPlugin()->getjsUrl('hbox-vue.js'));
         $this->addKeysToJavaScript($this->_plugin . '.close-file-confirmation');
-
-        // $this->addJavaScript('https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.26/vue.min.js');
 
         $allElements = array_filter(
             BoxElement::getAll(),

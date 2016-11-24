@@ -62,7 +62,7 @@ delete-element-form-title = "Delete a file / folder"
 
 ; Move an element in a folder
 move-element-form-title = "Move a file / folder to ..."
-move-element-form-intro = "Select the folder where you want to move <b ko-text="name"></b> into."
+move-element-form-intro = "Select the folder where you want to move <b>${name}</b> into."
 move-element-name-exists-error = "Another {type} exists with the same name in this directory."
 
 ; Share an element
