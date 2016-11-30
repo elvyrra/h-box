@@ -38,7 +38,8 @@ class Installer extends PluginInstaller{
             'plugin' => $this->_plugin,
             'name' => 'index',
             'labelKey' => $this->_plugin . '.menu-title',
-            'action' => 'h-box-index'
+            'action' => 'h-box-index',
+            'icon' => 'archive'
         ));
     }
 
@@ -63,4 +64,14 @@ class Installer extends PluginInstaller{
 
     }
     */
+
+   public function v2_1_0() {
+        $items = $this->getPlugin()->getMenuItems();
+
+        foreach($items as $item) {
+            $item->icon = 'archive';
+            $item->save();
+            break;
+        }
+   }
 }
