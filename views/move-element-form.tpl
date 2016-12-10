@@ -17,7 +17,8 @@
     </label>
 
     <ul>
-        <li e-each="{$data : children(), $sort : sortChilrenByname, $filter : function(elem) { return elem.isFolder && elem !== $root.processingElement }}">
+        <li e-unless="contentLoaded" class="text-center"><i class="icon icon-spinner text-center icon-spin"></i></li>
+        <li e-each="{$data : children(), $sort : $root.sortChilrenByname, $filter : function(elem) { return elem.isFolder && elem !== $root.processingElement }}">
             <div e-template="'move-element-tree'"></div>
         </li>
     </ul>

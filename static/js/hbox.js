@@ -14,6 +14,10 @@ require(['app', 'jquery', 'lang', 'emv'], (app, $, Lang, EMV) => {
             data.saved = true;
             data.data = undefined;
             data.tabContent = '';
+            data.developed = !data.id;
+            data.developedInMoveForm = !data.id;
+            data.isFolder = data.type === 'folder';
+            data.contentLoaded = !data.id;
 
             super({
                 data : data,
@@ -68,14 +72,15 @@ require(['app', 'jquery', 'lang', 'emv'], (app, $, Lang, EMV) => {
                 }
             });
 
-            this.developed = true;
-            // this.developed = !this.id;
-            this.developedInMoveForm = !this.id;
-            this.isFolder = this.type === 'folder';
-
             // Contains the data used to display the file
             this.$watch('data', () => {
                 this.saved = false;
+            });
+
+            this.$watch(['developed', 'developedInMoveForm'], (value, oldValue) => {
+                if(value && !oldValue && this.isFolder && !this.contentLoaded) {
+                    this.loadContent();
+                }
             });
         }
 
@@ -179,6 +184,25 @@ require(['app', 'jquery', 'lang', 'emv'], (app, $, Lang, EMV) => {
          */
         sortChildrenBymtime(elem1, elem2) {
             return elem2.mtime - elem2.mtime;
+        }
+
+        /**
+         * Load the content of a folder
+         * @returns {Deffered} Resolved when the query succeed
+         */
+        loadContent() {
+            return $.getJSON(app.getUri('h-box-folder-content', {
+                folderId : this.id
+            }))
+
+            .done((response) => {
+                this.contentLoaded = true;
+
+                // Create a new element
+                response.forEach((line) => {
+                    this.$root.elements.push(new this.constructor(line));
+                });
+            });
         }
     }
 
@@ -551,6 +575,9 @@ require(['app', 'jquery', 'lang', 'emv'], (app, $, Lang, EMV) => {
                 computed : {
                     rootElement : function() {
                         return this.elements[0];
+                    },
+                    sortFunction : function() {
+                        return this[`sortChilrenBy${this.sortOption.field}`];
                     }
                 }
             });
@@ -600,6 +627,30 @@ require(['app', 'jquery', 'lang', 'emv'], (app, $, Lang, EMV) => {
             this.sortOption = option;
         }
 
+        /**
+         * Function to sort the element children by name
+         * @param   {HBoxElement} elem1 The first children
+         * @param   {HBoxElement} elem2 The second childre
+         * @returns {int}       -1 if elem1 must be placed before elem2, else 1
+         */
+        sortChilrenByname(elem1, elem2) {
+            if(elem1.type === elem2.type) {
+                return elem1.name.toLowerCase() < elem2.name.toLowerCase() ? -1 : 1;
+            }
+
+            return elem1.type === 'folder' ? -1 : 1;
+        }
+
+        /**
+         * Function to sort the element children by mtime
+         * @param   {HBoxElement} elem1 The first children
+         * @param   {HBoxElement} elem2 The second childre
+         * @returns {int}       -1 if elem1 must be placed before elem2, else 1
+         */
+        sortChildrenBymtime(elem1, elem2) {
+            return elem2.mtime - elem2.mtime;
+        }
+
 
         /**
          * Show the tab that displays the file explorer
@@ -615,18 +666,31 @@ require(['app', 'jquery', 'lang', 'emv'], (app, $, Lang, EMV) => {
          */
         selectElement(element) {
             if(element.isFolder) {
-                var reduce = element === this.selectedFolder && element.developed;
+                const showFolderContent = (folder) => {
+                    var reduce = folder === this.selectedFolder && folder.developed;
 
-                // Open the folder content
-                this.selectedFolder = element;
+                    // Open the folder content
+                    this.selectedFolder = folder;
 
-                this.showExplorerTab();
+                    this.showExplorerTab();
 
-                if(reduce) {
-                    element.developed = false;
+                    if(reduce) {
+                        folder.developed = false;
+                    }
+                    else {
+                        folder.developed = true;
+                    }
+                };
+
+                if(!element.contentLoaded) {
+                    element.loadContent()
+
+                    .done(() => {
+                        showFolderContent(element);
+                    });
                 }
                 else {
-                    element.developed = true;
+                    showFolderContent(element);
                 }
             }
             else if(this.openFiles.indexOf(element) !== -1) {

@@ -71,7 +71,7 @@
 
         <!-- THE CONTENT OF THE LIST RESULTS -->
         <tbody>
-            <tr class="list-line" e-each="{$data : children(), $sort : sortFunction, $order : $root.sortOption.order}">
+            <tr class="list-line" e-each="{$data : children(), $sort : $root.sortFunction, $order : $root.sortOption.order}">
                 <td>
                     {icon icon="share-alt"
                         class="text-primary"

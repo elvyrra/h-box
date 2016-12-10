@@ -11,6 +11,15 @@ App::router()->prefix('/h-box', function() {
         ));
 
 
+        // Get the content of a folder
+        App::router()->get('h-box-folder-content', '/folders/{folderId}', array(
+            'where' => array(
+                'folderId' => '\d+'
+            ),
+            'action' => 'FolderController.content'
+        ));
+
+
         // Create a new folder
         App::router()->post('h-box-create-folder', '/folders/{folderId}/create-folder', array(
             'where' => array(

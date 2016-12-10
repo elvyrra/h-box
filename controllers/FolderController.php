@@ -99,7 +99,23 @@ class FolderController extends Controller {
         }
     }
 
-    public function edit() {
+    /**
+     * Display the content of a folder
+     * @return array The folder content elements
+     */
+    public function content() {
+        $folder = BoxElement::getById($this->folderId);
 
+        if(!$folder) {
+            throw new PageNotFoundException();
+        }
+
+        $elements = $folder->getReadableElements();
+
+        App::response()->setContentType('json');
+
+        return array_map(function($element) {
+            return $element->formatForJavaScript();
+        }, $elements);
     }
 }

@@ -16,7 +16,8 @@
             </label>
 
             <ul>
-                <li e-each="{$data : children(), $sort : sortChilrenByname, $order : 1}" e-class="type">
+                <li e-unless="contentLoaded" class="text-center"><i class="icon icon-spinner text-center icon-spin"></i></li>
+                <li e-each="{$data : children(), $sort : $root.sortChilrenByname, $order : 1}" e-class="type">
                     <div e-template="'tree-widget-element'"></div>
                 </li>
             </ul>

@@ -14,12 +14,9 @@ class MainController extends Controller {
         $this->addJavaScript($this->getPlugin()->getjsUrl('hbox.js'));
         $this->addKeysToJavaScript($this->_plugin . '.close-file-confirmation');
 
-        $allElements = array_filter(
-            BoxElement::getAll(),
-            function($element) {
-                return $element->isReadable();
-            }
-        );
+        $rootElement = BoxElement::getRootElement();
+        $allElements = $rootElement->getReadableElements();
+
         array_unshift($allElements, BoxElement::getRootElement());
 
         $allElements = array_map(function($element) {
