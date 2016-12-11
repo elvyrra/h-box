@@ -270,7 +270,7 @@ class ElementController extends Controller {
 
             try {
                 $element->set(array(
-                    'parentId' => $parent->id
+                    'parentId' => (string) $parent->id
                 ));
 
                 $element->save();
@@ -280,7 +280,9 @@ class ElementController extends Controller {
                     $oldParent->save();
                 }
 
-                $parent->save();
+                if($parent->id) {
+                    $parent->save();
+                }
 
                 $form->addReturn(array(
                     'oldParent' => $oldParent->formatForJavaScript(),
