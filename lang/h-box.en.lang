@@ -37,6 +37,7 @@ delete-folder-forbidden-message = "You don't have the privileges to delete this 
 share-folder-forbidden-message = "This folder is not yours. You cannot share it"
 share-file-forbidden-message = "This file is not yours. You cannot share it"
 share-element-user-forbidden-message = "{username} is not allowed to access HBox plugin. You cannot share an element with"
+extract-archive-bad-format-message = "The file you uploaded is not a valid archive. HBox cannot extract it"
 
 ; Form to create a new folder
 create-folder-title = "Create a new folder"
@@ -44,12 +45,14 @@ create-folder-name-label = "Folder name"
 create-folder-name-exists-error = "Another folder exists with the same name in this directory."
 
 ; Upload form
-upload-file-title = "Uplaod a new file"
-upload-file-form-file-label = "File to upload"
+upload-file-title = "Uplaod files"
+upload-file-form-file-label = "Files to upload"
+upload-file-form-extract-label = "It is possible to extract this archive directly in HBox. Do you want to ?"
 upload-file-form-upload-btn = "Upload"
 
 ; Edit a file
 close-file-confirmation = "{filename} is not saved. Do you really want to close it and loose the changes ?"
+zip-file-content-title = "File content"
 
 ; Rename a file
 rename-element-form-title = "Rename a file / folder"

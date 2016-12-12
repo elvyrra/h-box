@@ -286,7 +286,7 @@ require(['app', 'jquery', 'lang', 'emv'], (app, $, Lang, EMV) => {
         },
         archive : {
             icon : 'file-archive-o',
-            template : null,
+            template : 'zip',
             extensions : [
                 'gz',
                 'rar',
@@ -374,15 +374,36 @@ require(['app', 'jquery', 'lang', 'emv'], (app, $, Lang, EMV) => {
                         uploadFile : new HBoxDialogForm({
                             form : 'hbox-upload-file-form',
                             open : false,
-                            action : () => {
+                            files : [],
+                            extract : false,
+                            computed : {
+                                value : function() {
+                                    return this.files[0];
+                                },
+                                canExtract : function() {
+                                    if(this.files.length !== 1) {
+                                        return false;
+                                    }
+
+                                    const file = this.files[0];
+
+                                    return ['zip'].indexOf(file.split('.').pop()) !== -1;
+                                }
+                            },
+                            selectFile : (form, event) => {
+                                form.files = Array.from(event.target.files).map((file) => {
+                                    return file.name;
+                                });
+                            },
+                            action : function() {
+                                this.files = [];
+                                this.extract = false;
                                 return app.getUri('h-box-upload-file', {
-                                    folderId : this.selectedFolder.id
+                                    folderId : this.$root.selectedFolder.id
                                 });
                             },
                             onsuccess : (data) => {
                                 data.elements.forEach((data) => {
-                                    data.type = 'file';
-
                                     var element = this.selectedFolder.children().find((child) => {
                                         return child.id === data.id;
                                     });
@@ -790,5 +811,4 @@ require(['app', 'jquery', 'lang', 'emv'], (app, $, Lang, EMV) => {
     const hboxManager = new HBox(JSON.parse(data));
 
     hboxManager.$apply(document.getElementById('hbox-main-page'));
-
 });

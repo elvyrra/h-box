@@ -43,11 +43,11 @@ class FolderController extends Controller {
         ));
 
         if(!$form->submitted()) {
-            return Dialogbox::make(array(
+            return array(
                 'title' => Lang::get($this->_plugin . '.create-folder-title'),
                 'icon' => 'folder-open-o',
                 'page' => $form
-            ));
+            );
         }
         elseif($form->check()) {
             $parentFolder = BoxElement::getById($this->folderId);

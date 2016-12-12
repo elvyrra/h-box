@@ -187,6 +187,26 @@
     margin-left: -1rem;
 }
 
+
+.hbox-zip-editor {
+    border : 1px solid #ddd;
+    margin: -1rem;
+    padding : 1rem;
+    border-radius: 0 0 .4rem .4rem;
+
+    ul {
+        list-style-type : none;
+
+        &.zip-root {
+            padding-left: 0;
+        }
+
+        .zip-filename:before {
+            content : "" !important;
+        }
+    }
+}
+
 #hbox-share-element-form {
     .form-input-wrap-html {
         width: 100%;

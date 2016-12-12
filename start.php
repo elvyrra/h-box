@@ -21,7 +21,7 @@ App::router()->prefix('/h-box', function() {
 
 
         // Create a new folder
-        App::router()->post('h-box-create-folder', '/folders/{folderId}/create-folder', array(
+        App::router()->any('h-box-create-folder', '/folders/{folderId}/create-folder', array(
             'where' => array(
                 'folderId' => '\d+'
             ),
@@ -29,7 +29,7 @@ App::router()->prefix('/h-box', function() {
         ));
 
         // Upload a new file
-        App::router()->post('h-box-upload-file', '/folders/{folderId}/upload', array(
+        App::router()->any('h-box-upload-file', '/folders/{folderId}/upload', array(
             'where' => array(
                 'folderId' => '\d+'
             ),
@@ -46,7 +46,7 @@ App::router()->prefix('/h-box', function() {
 
 
         // Rename a folder or a file
-        App::router()->post('h-box-rename-element', '/elements/{elementId}/rename', array(
+        App::router()->any('h-box-rename-element', '/elements/{elementId}/rename', array(
             'where' => array(
                 'elementId' => '\d+'
             ),
@@ -55,7 +55,7 @@ App::router()->prefix('/h-box', function() {
 
 
         // Delete a folder / file
-        App::router()->delete('h-box-delete-element', '/elements/{elementId}', array(
+        App::router()->any('h-box-delete-element', '/elements/{elementId}', array(
             'where' => array(
                 'elementId' => '\d+'
             ),
@@ -72,7 +72,7 @@ App::router()->prefix('/h-box', function() {
         ));
 
         // Move a file / folder in another folder
-        App::router()->post('h-box-move-element', '/elements/{elementId}/move', array(
+        App::router()->any('h-box-move-element', '/elements/{elementId}/move', array(
             'where' => array(
                 'elementId' => '\d+'
             ),
@@ -81,7 +81,7 @@ App::router()->prefix('/h-box', function() {
 
 
         // Share a file / folder with a user / a role
-        App::router()->post('h-box-share-element', '/elements/{elementId}/share', array(
+        App::router()->any('h-box-share-element', '/elements/{elementId}/share', array(
             'where' => array(
                 'elementId' => '\d+'
             ),

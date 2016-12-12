@@ -12,7 +12,11 @@ class MainController extends Controller {
     public function index() {
         $this->addCss($this->getPlugin()->getCssUrl('hbox.less'));
         $this->addJavaScript($this->getPlugin()->getjsUrl('hbox.js'));
-        $this->addKeysToJavaScript($this->_plugin . '.close-file-confirmation');
+        $this->addKeysToJavaScript(
+            $this->_plugin . '.close-file-confirmation',
+            $this->_plugin . '.share-form-write-file-label',
+            $this->_plugin . '.share-form-write-folder-label'
+        );
 
         $rootElement = BoxElement::getRootElement();
         $allElements = $rootElement->getReadableElements();
@@ -45,6 +49,7 @@ class MainController extends Controller {
                         'audio' => AudioEditor::display(),
                         'video' => VideoEditor::display(),
                         'office' => OfficeEditor::display(),
+                        'zip' => ZipEditor::display(),
                     )
                 )),
                 'class' => 'col-md-9'

@@ -1,7 +1,7 @@
 {assign name="panelContent"}
     <template id="tree-widget-element">
         <div e-unless="isFolder">
-            <label class="element-name" e-click="$root.selectElement.bind($root)">
+            <label class="element-name pointer" e-click="$root.selectElement.bind($root)">
                 <i class="icon icon-fw" e-class="'icon-' + icon"></i> ${name}
             </label>
         </div>
@@ -11,7 +11,7 @@
                 <i class="icon icon-lg icon-fw" e-class="developed ? 'icon-caret-down text-primary' : 'icon-caret-right'"></i>
             </label>
 
-            <label class="element-name" e-click="$root.selectElement.bind($root)" e-class="{'text-primary' : $root.selectedFolder === $this}">
+            <label class="element-name pointer" e-click="$root.selectElement.bind($root)" e-class="{'text-primary' : $root.selectedFolder === $this}">
                 <i class="icon icon-fw" e-class="'icon-' + icon"></i> ${name}
             </label>
 

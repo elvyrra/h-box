@@ -44,11 +44,11 @@ class ElementController extends Controller {
         ));
 
         if(!$form->submitted()) {
-            return Dialogbox::make(array(
+            return array(
                 'title' => Lang::get($this->_plugin . '.rename-element-form-title'),
                 'icon' => 'pencil',
                 'page' => $form
-            ));
+            );
         }
         elseif($form->check()) {
             $element = BoxElement::getById($this->elementId);
@@ -121,11 +121,11 @@ class ElementController extends Controller {
         ));
 
         if(!$form->submitted()) {
-            return Dialogbox::make(array(
+            return array(
                 'title' => Lang::get($this->_plugin . '.delete-element-form-title'),
                 'icon' => 'times-circle',
                 'page' => $form
-            ));
+            );
         }
         else {
             try {
@@ -230,11 +230,11 @@ class ElementController extends Controller {
         ));
 
         if(!$form->submitted()) {
-            return Dialogbox::make(array(
+            return array(
                 'title' => Lang::get($this->_plugin . '.move-element-form-title'),
                 'icon' => 'arrows-alt',
                 'page' => $form
-            ));
+            );
         }
         elseif($form->check()) {
             $element = BoxElement::getById($this->elementId);
@@ -345,16 +345,11 @@ class ElementController extends Controller {
         ));
 
         if(!$form->submitted()) {
-            $this->addKeysToJavaScript(
-                $this->_plugin . '.share-form-write-file-label',
-                $this->_plugin . '.share-form-write-folder-label'
-            );
-
-            return Dialogbox::make(array(
+            return array(
                 'icon' => 'share-alt',
                 'title' => Lang::get($this->_plugin . '.share-form-title'),
                 'page' => $form
-            ));
+            );
         }
         else {
             try {

@@ -19,8 +19,20 @@ class FileController extends Controller {
                         'name' => 'files[]',
                         'label' => Lang::get($this->_plugin . '.upload-file-form-file-label'),
                         'multiple' => true,
-                        'required' => true
-                    ))
+                        'required' => true,
+                        'attributes' => array(
+                            'e-on' => '{change : $this.selectFile}'
+                        )
+                    )),
+
+                    new CheckboxInput(array(
+                        'name' => 'extract',
+                        'label' => Lang::get($this->_plugin . '.upload-file-form-extract-label'),
+                        'labelWidth' => 'auto',
+                        'attributes' => array(
+                            'e-value' => 'extract'
+                        )
+                    )),
                 ),
 
                 'submits' => array(
@@ -41,11 +53,16 @@ class FileController extends Controller {
         ));
 
         if(!$form->submitted()) {
-            return Dialogbox::make(array(
+            // Display the upload form
+            $pageContent = View::make($this->getPlugin()->getView('new-file-form.tpl'), array(
+                'form' => $form
+            ));
+
+            return array(
                 'title' => Lang::get($this->_plugin . '.upload-file-title'),
                 'icon' => 'upload',
-                'page' => $form
-            ));
+                'page' => $pageContent
+            );
         }
         elseif($form->check()) {
             $folder = BoxElement::getById($this->folderId);
@@ -61,59 +78,70 @@ class FileController extends Controller {
                 $files = $upload->getFiles();
                 $elements = [];
 
-                foreach($files as $file) {
-                    $element = BoxElement::getByExample(new DBExample(array(
-                        'type' => 'file',
-                        'parentId' => $this->folderId,
-                        'name' => $file->basename
-                    )));
-
-                    if($element) {
-                        if(!$element->isWritable()) {
-                            // The file is not writable by the user
-                            throw new ForbiddenException(Lang::get($this->_plugin . '.write-file-forbidden-message'));
-                        }
-
-                        // Update an existing file
-                        $path = $element->path;
-
-                        $element->set(array(
-                            'mimeType' => $file->mime
-                        ));
+                if($form->getData('extract') && count($files) === 1 && in_array($files[0]->extension, array('zip'))) {
+                    if(!$folder->isWritable()) {
+                        // No file can be created in this folder by the user
+                        throw new ForbiddenException(Lang::get($this->_plugin . '.write-folder-forbidden-message'));
                     }
-                    else {
-                        // Create a new file
-                        if(!$folder->isWritable()) {
-                            // No file can be created in this folder by the user
-                            throw new ForbiddenException(Lang::get($this->_plugin . '.write-folder-forbidden-message'));
-                        }
 
-                        // Move the file in the userfiles directory of the plugin
-                        $path = uniqid($this->getPlugin()->getUserfilesDir() . 'file-');
-
-                        // Save the file in the database
-                        $userId = App::session()->getUser()->id;
-                        $element = new BoxElement(array(
+                    $elements = $this->importArchive($files[0], $folder);
+                }
+                else {
+                    foreach($files as $file) {
+                        $element = BoxElement::getByExample(new DBExample(array(
                             'type' => 'file',
                             'parentId' => $this->folderId,
-                            'name' => $file->basename,
-                            'path' => $path,
-                            'mimeType' => $file->mime,
-                            'ownerId' => $userId,
-                            'ctime' => time(),
-                        ));
+                            'name' => $file->basename
+                        )));
+
+                        if($element) {
+                            // The element already exists, and must be updated
+                            if(!$element->isWritable()) {
+                                // The file is not writable by the user
+                                throw new ForbiddenException(Lang::get($this->_plugin . '.write-file-forbidden-message'));
+                            }
+
+                            // Update an existing file
+                            $path = $element->path;
+
+                            $element->set(array(
+                                'mimeType' => $file->mime
+                            ));
+                        }
+                        else {
+                            // Create a new file
+                            if(!$folder->isWritable()) {
+                                // No file can be created in this folder by the user
+                                throw new ForbiddenException(Lang::get($this->_plugin . '.write-folder-forbidden-message'));
+                            }
+
+                            // Move the file in the userfiles directory of the plugin
+                            $path = uniqid($this->getPlugin()->getUserfilesDir() . 'file-');
+
+                            // Save the file in the database
+                            $userId = App::session()->getUser()->id;
+                            $element = new BoxElement(array(
+                                'type' => 'file',
+                                'parentId' => $this->folderId,
+                                'name' => $file->basename,
+                                'path' => $path,
+                                'mimeType' => $file->mime,
+                                'ownerId' => $userId,
+                                'ctime' => time(),
+                            ));
+                        }
+
+                        $upload->move($file, dirname($path), basename($path));
+
+                        $element->save();
+
+                        // Update the mtime of the parent folder
+                        if($folder->id) {
+                            $folder->save();
+                        }
+
+                        $elements[] = $element->formatForJavaScript();
                     }
-
-                    $upload->move($file, dirname($path), basename($path));
-
-                    $element->save();
-
-                    // Update the mtime of the parent folder
-                    if($folder->id) {
-                        $folder->save();
-                    }
-
-                    $elements[] = $element->formatForJavaScript();
                 }
 
                 $form->addReturn(array(
@@ -125,6 +153,96 @@ class FileController extends Controller {
             }
             catch(\Exception $e) {
                 return $form->response(Form::STATUS_ERROR, DEBUG_MODE ? $e->getMessage() : null);
+            }
+        }
+    }
+
+
+    /**
+     * Import an archive
+     * @import Object $file The file to extract
+     * @returns array The created elements
+     */
+    private function importArchive($file, $folder) {
+        // The created elements
+        $elements = array();
+        $zip = new \Ziparchive();
+        $open = $zip->open($file->tmpFile);
+
+        if(!$open) {
+            // The file is not a valid archive file
+            throw new BadRequestException(Lang::get($this->_plugin . '.extract-archive-bad-format-message'), array(
+                'files[]' => Lang::get($this->_plugin . '.extract-archive-bad-format-message')
+            ));
+        }
+
+        $zip->extractTo(TMP_DIR . $file->basename);
+
+        $this->importFiles(TMP_DIR . $file->basename, $folder, $elements);
+
+        return $elements;
+    }
+
+    /**
+     * Import files from a folder
+     * @param   string      $dirname   The folder name containing the files to import
+     * @param   HBoxElement $folder    The HBox fodler where insert the imported files
+     * @param   array       &$elements The elements that are created when importing
+     */
+    private function importFiles($dirname, $folder, &$elements) {
+        $files = glob($dirname . '/*');
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+
+        foreach($files as $file) {
+            if(is_dir($file)) {
+                // Create a folder
+                $subFolder = new BoxElement(array(
+                    'type' => BoxElement::ELEMENT_FOLDER,
+                    'name' => basename($file),
+                    'parentId' => $folder->id,
+                    'ownerId' => App::session()->getUser()->id,
+                    'ctime' => time()
+                ));
+
+                $subFolder->save();
+
+                $elements[] = $subFolder->formatForJavaScript();
+
+                // Update the mtime of the parent folder
+                if($folder->id) {
+                    $folder->save();
+                }
+
+                $this->importFiles($file, $subFolder, $elements);
+            }
+            else {
+                // create a file
+                // Move the file in the userfiles directory of the plugin
+                $path = uniqid($this->getPlugin()->getUserfilesDir() . 'file-');
+
+                // Save the file in the database
+                $userId = App::session()->getUser()->id;
+
+                $element = new BoxElement(array(
+                    'type' => BoxElement::ELEMENT_FILE,
+                    'parentId' => $folder->id,
+                    'name' => basename($file),
+                    'path' => $path,
+                    'mimeType' => finfo_file($finfo, $file),
+                    'ownerId' => $userId,
+                    'ctime' => time(),
+                ));
+
+                rename($file, $path);
+
+                $element->save();
+
+                // Update the mtime of the parent folder
+                if($folder->id) {
+                    $folder->save();
+                }
+
+                $elements[] = $element->formatForJavaScript();
             }
         }
     }
@@ -177,6 +295,58 @@ class FileController extends Controller {
                     return App::router()->getUrl('h-box-static-file', array(
                         'token' => $token
                     ));
+
+                case 'zip' :
+                    $zip = new \zipArchive();
+                    if($zip->open($file->path) !== true) {
+                        return Lang::get($this->_plugin . '.extract-archive-bad-format-message');
+                    }
+
+                    $data = array();
+                    $allContent = array();
+                    App::response()->setContentType('json');
+
+                    foreach(range(0, $zip->numFiles - 1) as $i) {
+                        $info = $zip->statIndex($i);
+
+                        $type = preg_match('#/$#', $info['name']) ? BoxElement::ELEMENT_FOLDER : BoxElement::ELEMENT_FILE;
+
+                        // Get the parent folder
+                        $dirname = dirname($info['name']);
+
+                        if(empty($allContent[$dirname . '/'])) {
+                            $dir = &$data;
+                        }
+                        else {
+                            $dir = &$allContent[$dirname . '/']->content;
+                        }
+
+                        if($type == BoxElement::ELEMENT_FOLDER) {
+                            $line = (object) array(
+                                'type' => $type,
+                                'name' => basename($info['name']),
+                                'fullname' => $info['name'],
+                                'content' => array(),
+                                'uid' => uniqid(),
+                                'developed' => false
+                            );
+
+                        }
+                        else {
+                            $line = (object) array(
+                                'type' => $type,
+                                'name' => basename($info['name']),
+                                'fullname' => $info['name'],
+                                'size' => $info['size'],
+                                'uid' => uniqid()
+                            );
+                        }
+
+                        $allContent[$line->fullname] = $line;
+                        $dir[] = $line;
+                    }
+
+                    return $data;
 
                 default :
                     return file_get_contents($file->path);

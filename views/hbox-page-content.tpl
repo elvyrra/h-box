@@ -31,7 +31,20 @@
 
 <!-- Modal forms -->
 {foreach($dialogForms as $name => $form)}
-    <div class="modal fade dialog-form">{{ $form }}</div>
+    <div class="modal fade dialog-form">
+        <div class="modal-backdrop fade"></div>
+        <div class="modal-dialog center">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+                    <h4 class="modal-title">
+                        {icon icon="{$form['icon']}"} {{ $form['title'] }}
+                    </h4>
+                </div>
+                <div class="modal-body">{{ $form['page'] }}</div>
+            </div>
+        </div>
+    </div>
 {/foreach}
 
 <!-- Editors templates -->
