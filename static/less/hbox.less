@@ -201,8 +201,11 @@
             padding-left: 0;
         }
 
-        .zip-filename:before {
-            content : "" !important;
+        .zip-filename {
+            white-space: nowrap;
+            &:before {
+                content : "" !important;
+            }
         }
     }
 }
