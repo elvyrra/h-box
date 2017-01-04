@@ -23,6 +23,7 @@ H Box allows you to read your files directly from the application. A large part 
 * Play audio and video files
 * Display image files
 * Edit text files (useful for developers)
+* Import a zip file and extract it to create a full structure
 
 
 # Dependencies
