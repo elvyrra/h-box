@@ -51,7 +51,7 @@ require(['app', 'jquery', 'lang', 'emv'], (app, $, Lang, EMV) => {
                     },
                     icon : function() {
                         if(this.isFolder) {
-                            return 'folder-open';
+                            return 'folder';
                         }
 
                         return HBoxElement.fileTypes[this.fileType].icon;

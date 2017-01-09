@@ -12,7 +12,7 @@
             </label>
 
             <label class="element-name pointer" e-click="$root.selectElement.bind($root)" e-class="{'text-primary' : $root.selectedFolder === $this}">
-                <i class="icon icon-fw" e-class="'icon-' + icon"></i> ${name}
+                <i class="icon icon-fw" e-class="{'icon-folder-open' : developed, 'icon-folder' : !developed}"></i> ${name}
             </label>
 
             <ul>
