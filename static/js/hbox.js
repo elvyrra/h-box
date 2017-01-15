@@ -301,6 +301,13 @@ require(['app', 'jquery', 'lang', 'emv'], (app, $, Lang, EMV) => {
                 'pdf'
             ]
         },
+        markdown : {
+            icon : 'book',
+            template : 'markdown',
+            extensions : [
+                'md'
+            ]
+        },
         default : {
             icon : 'file-o',
             template : 'ace',

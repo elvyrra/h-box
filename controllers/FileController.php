@@ -361,8 +361,6 @@ class FileController extends Controller {
             try {
                 file_put_contents($file->path, App::request()->getBody('data'));
 
-                $file->set(array());
-
                 $file->save();
 
                 App::response()->setStatus(204);
@@ -375,6 +373,7 @@ class FileController extends Controller {
                     'message' => $e->getMessage()
                 );
             }
+
         }
     }
 

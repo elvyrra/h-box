@@ -50,6 +50,7 @@ class MainController extends Controller {
                         'video' => VideoEditor::display(),
                         'office' => OfficeEditor::display(),
                         'zip' => ZipEditor::display(),
+                        'markdown' => MarkdownEditor::display()
                     )
                 )),
                 'class' => 'col-md-9'

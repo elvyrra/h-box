@@ -8,38 +8,52 @@
     </ol>
 
     <div class="pull-right folder-actions">
-        <span e-if="id">
-            <span class="icon-stack icon pointer" e-click="$root.dialogs.renameElement.open = $this">
-                {icon icon="pencil" size="stack-2x" title="{text key='h-box.rename-element-title'}"}
-            </span>
+        <div class="dropdown">
+            {icon icon="ellipsis-v" size="lg" class="pointer text-info" data-toggle="dropdown"}
+            <ul class="dropdown-menu dropdown-menu-right">
+                <li e-if="id">
+                    <a href="#" e-click="$root.dialogs.renameElement.open = $this">
+                        {icon icon="pencil"} {text key='h-box.rename-element-title'}
+                    </a>
+                </li>
 
-            <span class="icon-stack icon pointer" e-click="$root.dialogs.deleteElement.open = $this">
-                {icon icon="times" size="stack-2x" title="{text key='h-box.delete-element-title'}"}
-            </span>
+                <li e-if="id">
+                    <a href="#" e-click="$root.dialogs.deleteElement.open = $this">
+                        {icon icon="times"} {text key='h-box.delete-element-title'}
+                    </a>
+                </li>
 
-            <span class="icon-stack icon pointer" e-click="$root.dialogs.moveElement.open = $this">
-                {icon icon="arrows" size="stack-2x" title="{text key='h-box.move-element-title'}"}
-            </span>
+                <li e-if="id">
+                    <a href="#" e-click="$root.dialogs.moveElement.open = $this">
+                        {icon icon="arrows"} {text key='h-box.move-element-title'}
+                    </a>
+                </li>
 
-            <span class="icon-stack icon pointer" e-click="$root.dialogs.shareElement.open = $this" e-show="canShare">
-                {icon icon="share-alt-square" size="stack-2x" title="{text key='h-box.share-element-title'}"}
-            </span>
-        </span>
+                <li e-if="id">
+                    <a href="#" e-click="$root.dialogs.shareElement.open = $this" e-show="canShare">
+                        {icon icon="share-alt-square"} {text key='h-box.share-element-title'}
+                    </a>
+                </li>
 
-        <span class="icon-stack icon pointer" e-click="$root.downloadElement.bind($root)">
-            {icon icon="download" size="stack-2x" title="{text key='h-box.download-element-title'}"}
-        </span>
+                <li>
+                    <a href="#" e-click="$root.downloadElement.bind($root)">
+                        {icon icon="download"} {text key='h-box.download-element-title'}
+                    </a>
+                </li>
 
-        <span class="icon-stack icon pointer" e-click="$root.dialogs.newFolder.open = true" title="{text key='h-box.create-folder-title'}">
-            {icon icon="folder-open-o" size="stack-2x"}
-            {icon icon="plus" size="lg" class="pull-left text-primary"}
-        </span>
+                <li>
+                    <a href="#" e-click="$root.dialogs.newFolder.open = true">
+                        {icon icon="folder-open-o"} {text key='h-box.create-folder-title'}
+                    </a>
+                </li>
 
-        <span class="icon-stack icon pointer" e-click="$root.dialogs.uploadFile.open = true" title="{text key='h-box.upload-file-title'}">
-            {icon icon="file-o" size="stack-2x" }
-            {icon icon="plus-circle" size="lg" class="pull-left"}
-        </span>
-
+                <li>
+                    <a href="#" e-click="$root.dialogs.uploadFile.open = true">
+                        {icon icon="upload"} {text key='h-box.upload-file-title'}
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
 
     <div class="clearfix"></div>
@@ -87,36 +101,40 @@
                     ${mtime} (${modifiedBy})
                 </td>
                 <td class="list-cell list-cell-actions">
-                    {icon icon="pencil"
-                        class="text-primary"
-                        title="{text key='h-box.rename-element-title'}"
-                        e-click="function(element) { $root.dialogs.renameElement.open = element; }"
-                    }
+                    <div class="dropdown pull-right">
+                        {icon icon="caret-square-o-down" data-toggle="dropdown" size="lg"}
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li>
+                                <a href="#" e-click="function(element) { $root.dialogs.renameElement.open = element; }">
+                                    {icon icon="pencil" class="text-primary"} {text key="h-box.rename-element-title"}
+                                </a>
+                            </li>
 
+                            <li>
+                                <a href="#" e-click="function(element) { $root.dialogs.deleteElement.open = element; }">
+                                    {icon icon="trash" class="text-danger"} {text key="h-box.delete-element-title"}
+                                </a>
+                            </li>
 
-                    {icon icon="times"
-                        class="text-danger"
-                        title="{text key='h-box.delete-element-title'}"
-                        e-click="function(element) { $root.dialogs.deleteElement.open = element; }"
-                    }
+                            <li>
+                                <a href="#" e-click="function(element) { $root.dialogs.moveElement.open = element; }">
+                                    {icon icon="arrows" class="text-warning"} {text key="h-box.move-element-title"}
+                                </a>
+                            </li>
 
-                    {icon icon="arrows"
-                        class="text-warning"
-                        title="{text key='h-box.move-element-title'}"
-                        e-click="function(element) { $root.dialogs.moveElement.open = element; }"
-                    }
+                            <li>
+                                <a href="#" e-click="$root.downloadElement.bind($root)">
+                                    {icon icon="download"} {text key="h-box.download-element-title"}
+                                </a>
+                            </li>
 
-                    {icon icon="download"
-                        title="{text key='h-box.download-element-title'}"
-                        e-click="$root.downloadElement.bind($root)"
-                    }
-
-                    {icon icon="share-alt-square"
-                        class="text-info"
-                        title="{text key='h-box.share-element-title'}"
-                        e-show="canShare"
-                        e-click="function(element) { $root.dialogs.shareElement.open = element; }"
-                    }
+                            <li e-if="canShare">
+                                <a href="#" e-click="function(element) { $root.dialogs.shareElement.open = element; }">
+                                    {icon icon="share-alt-square" class="text-info"} {text key="h-box.share-element-title"}
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </td>
             </tr>
         </tbody>

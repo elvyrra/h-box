@@ -33,3 +33,8 @@ This plugin does not depends on any other plugin
 This plugin is devloped by the company Elvyrra
 
 ©Elvyrra S.A.S
+
+# Changeset
+##v1.4.0
+* Change menu displaying
+* Add Markdown support

@@ -97,17 +97,29 @@
                 max-width: 100%;
             }
         }
+
+        &.file-editor-markdown {
+            .form-input-wrap-markdown {
+                width: 100%;
+                height: 95%;
+                max-width: 100%;
+
+                textarea {
+                    margin-top: -1rem;
+                }
+            }
+        }
     }
 
     #hbox-folder-content {
         .list-line {
-            .list-cell-actions .icon{
+            .list-cell-actions .dropdown{
                 opacity: 0;
                 transition: opacity .2s;
             }
 
             &:hover {
-                .list-cell-actions .icon {
+                .list-cell-actions .dropdown {
                     opacity: 0.6;
 
                     &:hover {
