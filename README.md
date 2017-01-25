@@ -35,6 +35,9 @@ This plugin is devloped by the company Elvyrra
 ©Elvyrra S.A.S
 
 # Changeset
-##v1.4.0
+## v2.5.0
+* Add a loader when loading first elements in HBox
+* Translation in French
+## v1.4.0
 * Change menu displaying
 * Add Markdown support

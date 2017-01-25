@@ -11,14 +11,17 @@ main-page-title = "H Box"
 tree-widget-title = "Explorer"
 root-folder-name = "Root"
 
+; Loader
+loading-page = "Hbox is loading ..."
+
 ; Tabs
 tabs-folder-content-title = "Explorer"
 
 ; Folder content
 folder-content-name-label = "Name"
-folder-content-mtime-label = "last modified on"
+folder-content-mtime-label = "Last modified on"
 upload-file-title = "Upload files"
-create-folder-title = "Creata a sub folder"
+create-folder-title = "Create a sub folder"
 rename-element-title = "Rename"
 delete-element-title = "Delete"
 download-element-title = "Download"

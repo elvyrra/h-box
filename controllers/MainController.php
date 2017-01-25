@@ -60,7 +60,8 @@ class MainController extends Controller {
                     HBoxTreeWidget::getInstance()
                 ),
                 'class' => 'col-md-3'
-            )
+            ),
+            'bottom' => View::make($this->getPlugin()->getView('loading.tpl'))
         ));
     }
 }

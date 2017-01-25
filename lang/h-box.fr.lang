@@ -1,0 +1,84 @@
+; Permissions
+permission-name-access-plugin = "Accéder à HBox"
+
+; Menu
+menu-title = "H Box"
+
+; Main page
+main-page-title = "H Box"
+
+; Tree widget
+tree-widget-title = "Explorateur"
+root-folder-name = "Mes documents"
+
+; Loader
+loading-page = "Chargement de Hbox en cours..."
+
+; Tabs
+tabs-folder-content-title = "Explorateur"
+
+; Folder content
+folder-content-name-label = "Nom"
+folder-content-mtime-label = "Modifié"
+upload-file-title = "Ajouter des fichiers"
+create-folder-title = "Nouveau dossier"
+rename-element-title = "Renommer"
+delete-element-title = "Supprimer"
+download-element-title = "Télécharger"
+move-element-title = "Déplacer"
+share-element-title = "Partager"
+shared-element-title = "Partagé"
+
+
+; Error messages
+read-file-forbidden-message = "Vous n'avez pas les droits pour lire ce fichier"
+read-folder-forbidden-message = "Vous n'avez pas les droits pour lire le contenu de ce dossier"
+write-file-forbidden-message = "Vous n'avez pas les droits pour modifier ce fichier"
+write-folder-forbidden-message = "Vous n'avez pas les droits pour modifier ce répertoire"
+delete-file-forbidden-message = "VOus n'avez pas les droits pour supprimer ce fichier"
+delete-folder-forbidden-message = "Vous n'avez pas les droits pour supprimer ce dossier et son contenu"
+share-folder-forbidden-message = "Ce dossier n'est pas le vôtre, vous ne pouvez pas le partager"
+share-file-forbidden-message = "Ce fichier n'est pas le vôtre, vous ne pouvez pas le partager"
+share-element-user-forbidden-message = "{username} n'a pas accès à HBox. Vous ne pouvez pas lui partager cet élément"
+extract-archive-bad-format-message = "Ce fichier n'est pas une archive valide, HBox ne peut pas l'extraire"
+
+; Form to create a new folder
+create-folder-title = "Créer un nouveau dossier"
+create-folder-name-label = "Nom du dossier"
+create-folder-name-exists-error = "Un autre dossier porte déjà le même nom."
+
+; Upload form
+upload-file-title = "Ajouter des fichiers"
+upload-file-form-file-label = "Fichiers à ajouter"
+upload-file-form-extract-label = "Il est possible d'extraire cette archive directement dans HBox, voulez-vous le faire ?"
+upload-file-form-upload-btn = "Envoyer"
+
+; Edit a file
+close-file-confirmation = "{filename} n'est pas sauvegardé. Voulez-vous le fermer et perdre vos modificatrions ?"
+zip-file-content-title = "Contenu du fichier"
+
+; Rename a file
+rename-element-form-title = "Renommer un fichier / un dossier"
+rename-element-name-label = "Nouvea nom"
+rename-element-name-exists-error = "Un autre fichier ou dossier porte déjà ce nom."
+
+; Delete a file / folder
+delete-element-confirmation = "Voulez-vous vraiment supprimer cet élémént ?"
+delete-element-form-title = "Supprimer un dossier / un fichier"
+
+; Move an element in a folder
+move-element-form-title = "Déplacer un dossier ou fichier"
+move-element-form-intro = "Choisisez le dossier dans lequel déplacer <b>${name}</b>."
+move-element-name-exists-error = "Un autre fichier ou dossier porte déjà ce nom."
+
+; Share an element
+share-form-with-label = "Partager avec :"
+share-form-title = "Partager un dossier ou un fichier"
+share-form-shared-legend = "Partagé avec"
+share-form-write-file-label = "Autoriser l'utilisateur à modifier ce fichier ?
+share-form-write-folder-label = "Autoriser l'utilisateur à modifier ce dossier et son contenu ?"
+share-email-title = "{username} vous a partagé un fichier sur HBox"
+share-email-content = "{username} vous a paratgé l'élément {name} sur HBox"
+remove-sharing-title = "Ne plus partager ce fichier avec cet utilisateur"
+sharing-table-with-label = "Partagé avec"
+sharing-table-write-label = "Autoriser l'écriture ?"

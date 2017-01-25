@@ -13,25 +13,19 @@
             <ul class="dropdown-menu dropdown-menu-right">
                 <li e-if="id">
                     <a href="#" e-click="$root.dialogs.renameElement.open = $this">
-                        {icon icon="pencil"} {text key='h-box.rename-element-title'}
+                        {icon icon="pencil" class="text-primary"} {text key='h-box.rename-element-title'}
                     </a>
                 </li>
 
                 <li e-if="id">
                     <a href="#" e-click="$root.dialogs.deleteElement.open = $this">
-                        {icon icon="times"} {text key='h-box.delete-element-title'}
+                        {icon icon="trash" class="text-danger"} {text key='h-box.delete-element-title'}
                     </a>
                 </li>
 
                 <li e-if="id">
                     <a href="#" e-click="$root.dialogs.moveElement.open = $this">
-                        {icon icon="arrows"} {text key='h-box.move-element-title'}
-                    </a>
-                </li>
-
-                <li e-if="id">
-                    <a href="#" e-click="$root.dialogs.shareElement.open = $this" e-show="canShare">
-                        {icon icon="share-alt-square"} {text key='h-box.share-element-title'}
+                        {icon icon="arrows" class="text-warning"} {text key='h-box.move-element-title'}
                     </a>
                 </li>
 
@@ -41,15 +35,21 @@
                     </a>
                 </li>
 
+                <li e-if="id">
+                    <a href="#" e-click="$root.dialogs.shareElement.open = $this" e-show="canShare">
+                        {icon icon="share-alt-square" class="text-info"} {text key='h-box.share-element-title'}
+                    </a>
+                </li>
+
                 <li>
                     <a href="#" e-click="$root.dialogs.newFolder.open = true">
-                        {icon icon="folder-open-o"} {text key='h-box.create-folder-title'}
+                        {icon icon="folder-open-o" class="text-success"} {text key='h-box.create-folder-title'}
                     </a>
                 </li>
 
                 <li>
                     <a href="#" e-click="$root.dialogs.uploadFile.open = true">
-                        {icon icon="upload"} {text key='h-box.upload-file-title'}
+                        {icon icon="upload" class="text-success"} {text key='h-box.upload-file-title'}
                     </a>
                 </li>
             </ul>

@@ -375,6 +375,7 @@ require(['app', 'jquery', 'lang', 'emv'], (app, $, Lang, EMV) => {
                         field : 'name',
                         order : 1
                     },
+                    loaded : false,
                     // Definition of all dialog forms properties
                     dialogs : {
                         //  Form to upload a new file
@@ -623,6 +624,8 @@ require(['app', 'jquery', 'lang', 'emv'], (app, $, Lang, EMV) => {
                     this.moveElement(element, parent);
                 }
             });
+
+            this.loaded = true;
         }
 
         /**
